@@ -10,8 +10,6 @@ import org.lwjgl.util.glu.GLU;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.input.Mouse.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.util.glu.GLU.*;
 
 public class Game {
 
