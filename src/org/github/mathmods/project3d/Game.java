@@ -5,8 +5,8 @@ import java.util.Random;
 import org.lwjgl.*;
 import org.lwjgl.input.*;
 import org.lwjgl.opengl.*;
-import org.lwjgl.util.glu.GLU;
 
+import static org.lwjgl.util.glu.GLU.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.input.Mouse.*;
@@ -19,7 +19,14 @@ public class Game {
 	float rotation = 0;
 	float x = 0, y = 0, z = 0;
 	
-	int vievy = 25, vievx = 25;
+	int viewy = 25, viewx = 25;
+	
+	int radius = 7;
+	
+	float camerax = 0, cameray = 0, cameraz = radius;
+	
+	double degreessurface = 90;
+	double degreesup = 0;
 	
 	int mousex, mousey;
 	boolean isLdown = false, isRdown = false;
@@ -85,28 +92,32 @@ public class Game {
 		if(isKeyDown(KEY_ESCAPE)){
 			wantToClose = true;
 		}
-		while(Keyboard.next()){
-			if(getEventKeyState()){
-				if(getEventKey() == KEY_W){
-					
-				}else if(getEventKey() == KEY_A){
-					
-				}else if(getEventKey() == KEY_S){
-					
-				}else if(getEventKey() == KEY_D){
-					
-				}
-			}else{
-				if(getEventKey() == KEY_W){
-					
-				}else if(getEventKey() == KEY_A){
-					
-				}else if(getEventKey() == KEY_S){
-					
-				}else if(getEventKey() == KEY_D){
-					
-				}
+		if(isKeyDown(KEY_W)){
+			degreesup += 1;
+			if(degreesup > 360){
+				degreesup -= 360;
 			}
+			updatePositionY();
+		}
+		
+		if(isKeyDown(KEY_A)){
+			degreessurface += 1;
+			if(degreessurface > 360){
+				degreessurface -= 360;
+			}
+			updatePositionSurface();
+		}
+		
+		if(isKeyDown(KEY_S)){
+			
+		}
+		
+		if(isKeyDown(KEY_D)){
+			degreessurface -= 1;
+			if(degreessurface < 0){
+				degreessurface += 360;
+			}
+			updatePositionSurface();
 		}
 	}
 	
@@ -139,63 +150,67 @@ public class Game {
 	
 	public void renderGL() {
 		
-		glViewport(vievx, vievy, Display.getWidth(), Display.getHeight());
-		
+		glViewport(viewx, viewy, Display.getWidth(), Display.getHeight());
 		
 		// Clear The Screen And The Depth Buffer
 		glClearColor(0f, 0f, 0f, 0.5f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
 		
-		glTranslatef(x, y, -6.0f);
-		glRotatef(rotation, 0, rand.nextInt(5), 0);
-		glRotatef(rotation, rand.nextInt(5), 0, 0);
-		glRotatef(rotation, 0, 0, rand.nextInt(5));
+		gluLookAt(camerax, cameray, cameraz, x, y, z, 0, 1, 0);
+		
+		glTranslatef(x-.5f, y-.5f, z-.5f);
+
 		draw1MCube();
-		glTranslatef(-x, -y, 6.0f);
+		glTranslatef(-x+.5f, -y+.5f, -z+.5f);
+		
+		Display.sync(60);
 	}
 	
 	public void draw1MCube(){
 		glBegin(GL_QUADS);
 		{
-			//Sides
+			//Front
 			glColor3f(0f, 0f, 1f);
-			glVertex3f(-1.0f, -1.0f, 1.0f);
-			glVertex3f(1.0f, -1.0f, 1.0f);
+			glVertex3f(0f, 0f, 1.0f);
+			glVertex3f(1.0f, 0f, 1.0f);
 			glVertex3f(1.0f, 1.0f, 1.0f);
-			glVertex3f(-1.0f, 1.0f, 1.0f);
+			glVertex3f(0f, 1.0f, 1.0f);
 			
+			//Right
 			glColor3f(0f, 1f, 0f);
-			glVertex3f(1.0f, -1.0f, -1.0f);
-			glVertex3f(1.0f, -1.0f, 1.0f);
+			glVertex3f(1.0f, 0f, 0f);
+			glVertex3f(1.0f, 0f, 1.0f);
 			glVertex3f(1.0f, 1.0f, 1.0f);
-			glVertex3f(1.0f, 1.0f, -1.0f);
+			glVertex3f(1.0f, 1.0f, 0f);
 			
+			//Back
 			glColor3f(1f, 0f, 0f);
-			glVertex3f(1.0f, -1.0f, -1.0f);
-			glVertex3f(-1.0f, -1.0f, -1.0f);
-			glVertex3f(-1.0f, 1.0f, -1.0f);
-			glVertex3f(1.0f, 1.0f, -1.0f);
+			glVertex3f(1.0f, 0f, 0f);
+			glVertex3f(0f, 0f, 0f);
+			glVertex3f(0f, 1.0f, 0f);
+			glVertex3f(1.0f, 1.0f, 0f);
 			
+			//Left
 			glColor3f(0f, 1f, 1f);
-			glVertex3f(-1.0f, -1.0f, 1.0f);
-			glVertex3f(-1.0f, -1.0f, -1.0f);
-			glVertex3f(-1.0f, 1.0f, -1.0f);
-			glVertex3f(-1.0f, 1.0f, 1.0f);
+			glVertex3f(0f, 0f, 1.0f);
+			glVertex3f(0f, 0f, 0f);
+			glVertex3f(0f, 1.0f, 0f);
+			glVertex3f(0f, 1.0f, 1.0f);
 			
 			//Top
 			glColor3f(1f, 1f, 0f);
-			glVertex3f(-1.0f, 1.0f, 1.0f);
+			glVertex3f(0f, 1.0f, 1.0f);
 			glVertex3f(1.0f, 1.0f, 1.0f);
-			glVertex3f(1.0f, 1.0f, -1.0f);
-			glVertex3f(-1.0f, 1.0f, -1.0f);
+			glVertex3f(1.0f, 1.0f, 0f);
+			glVertex3f(0f, 1.0f, 0f);
 			
 			//Bottom
 			glColor3f(1f, 0f, 1f);
-			glVertex3f(1.0f, -1.0f, 1.0f);
-			glVertex3f(-1.0f, -1.0f, 1.0f);
-			glVertex3f(-1.0f, -1.0f, -1.0f);
-			glVertex3f(1.0f, -1.0f, -1.0f);
+			glVertex3f(1.0f, 0f, 1.0f);
+			glVertex3f(0f, 0f, 1.0f);
+			glVertex3f(0f, 0f, 0f);
+			glVertex3f(1.0f, 0f, 0f);
 		}
 		glEnd();
 	}
@@ -205,8 +220,7 @@ public class Game {
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		
-		GLU.gluPerspective(45.5F, Display.getWidth() / Display.getHeight(), 1.0F, 1000.0F);
-		
+		gluPerspective(45.5F, Display.getWidth() / Display.getHeight(), 1.0F, 1000.0F);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
@@ -219,6 +233,17 @@ public class Game {
 		glShadeModel(GL_SMOOTH);
 		
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	}
+	
+	private void updatePositionSurface(){
+		double radians = Math.toRadians(degreessurface);
+		camerax = (float)(x + radius * Math.cos(radians));
+		cameraz = (float)(z + radius * Math.sin(radians));
+	}
+	
+	private void updatePositionY(){
+		double radians = Math.toRadians(degreesup);
+		cameray = (float)(y + radius * Math.sin(radians));
 	}
 	
 	public static void main(String[] args){
