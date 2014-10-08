@@ -1,10 +1,8 @@
 package org.github.mathmods.project3d;
 
-import java.util.Random;
-
 import org.lwjgl.*;
-import org.lwjgl.input.*;
 import org.lwjgl.opengl.*;
+import org.newdawn.slick.opengl.Texture;
 
 import static org.lwjgl.util.glu.GLU.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -16,14 +14,19 @@ public class Game {
 	public static final int width = 1220;
 	public static final int height = 700;
 	
+	public static final float blockHeight = 1f;
+	public static final float blockWidth = (1f/5f)*3f;
+	
 	float rotation = 0;
 	float x = 0, y = 0, z = 0;
 	
 	int viewy = 25, viewx = 25;
 	
-	int radius = 7;
+	//int radius = 7;
 	
-	float camerax = 0, cameray = 0, cameraz = radius;
+	float camerax = 3, cameray = 5, cameraz = 7;
+	
+	float lookx = camerax, looky = cameray, lookz = cameraz-5;
 	
 	double degreessurface = 90;
 	double degreesup = 0;
@@ -36,7 +39,7 @@ public class Game {
 	private int fps;
 	private long lastTime;
 	
-	Random rand = new Random(135653224);
+	World world;
 	
 	public void start(){
 		try {
@@ -59,6 +62,8 @@ public class Game {
 		initGL();
 		getDelta();
 		lastTime = getTime();
+		setCursorPosition(Display.getWidth()/2, Display.getHeight()/2);
+		world = new World(10);
 		
 		//The game loop
 		while(!Display.isCloseRequested() && !wantToClose){
@@ -89,35 +94,24 @@ public class Game {
 		mousey = getY();
 		isLdown = isButtonDown(0);
 		isRdown = isButtonDown(1);
+		if(mousex != Display.getWidth()/2){
+			if(mousex < Display.getWidth()/2){
+				
+			}else{
+				
+			}
+			setCursorPosition(Display.getWidth()/2, mousey);
+		}
+		if(mousey != Display.getHeight()/2){
+			if(mousey < Display.getHeight()/2){
+				
+			}else{
+				
+			}
+			setCursorPosition(getX(), Display.getHeight()/2);
+		}
 		if(isKeyDown(KEY_ESCAPE)){
 			wantToClose = true;
-		}
-		if(isKeyDown(KEY_W)){
-			degreesup += 1;
-			if(degreesup > 360){
-				degreesup -= 360;
-			}
-			updatePositionY();
-		}
-		
-		if(isKeyDown(KEY_A)){
-			degreessurface += 1;
-			if(degreessurface > 360){
-				degreessurface -= 360;
-			}
-			updatePositionSurface();
-		}
-		
-		if(isKeyDown(KEY_S)){
-			
-		}
-		
-		if(isKeyDown(KEY_D)){
-			degreessurface -= 1;
-			if(degreessurface < 0){
-				degreessurface += 360;
-			}
-			updatePositionSurface();
 		}
 	}
 	
@@ -159,60 +153,141 @@ public class Game {
 		
 		gluLookAt(camerax, cameray, cameraz, x, y, z, 0, 1, 0);
 		
-		glTranslatef(x-.5f, y-.5f, z-.5f);
-
-		draw1MCube();
-		glTranslatef(-x+.5f, -y+.5f, -z+.5f);
+		//Doesn't lag but isn't a full world
+		Block b = new BlockGrass();
+		glTranslatef(b.x-.5f, b.y-.5f, b.z-.5f);
+		draw1MCube(b);
+		glTranslatef(-b.x+.5f, -b.y+.5f, -b.z+.5f);
+		Block d = new BlockDirt();
+		glTranslatef(d.x-.5f, d.y-.5f, d.z-.5f);
+		draw1MCube(d);
+		glTranslatef(-d.x+.5f, -d.y+.5f, -d.z+.5f);
+		/* LAGGING AS IF IT WAS NO SENSE PLAYING D:*\
+		for(int cx = 0;cx<10;cx++){
+			for(int cy = 0;cy<10;cy++){
+				for(int x = 0;x<16;x++){
+					for(int z = 0;z<16;z++){
+						for(int y = 0;y<52;y++){
+							Block b = world.spawnChunks[cx][cy].getBlock(x, y, z);
+							if(b!=null){
+								glTranslatef(world.spawnChunks[cx][cy].x + x, y,
+										world.spawnChunks[cx][cy].z + z);
+								draw1MCube(b);
+								glTranslatef(-world.spawnChunks[cx][cy].x - x, -y,
+										-world.spawnChunks[cx][cy].z + -z);
+							}
+						}
+					}
+				}
+			}
+		}/*OH NO*/
 		
 		Display.sync(60);
 	}
 	
-	public void draw1MCube(){
+	public void draw1MCube(Block b){
+		Texture t = b.getIcon(3, 0);
+		t.bind();
+		glEnable(GL_TEXTURE_2D);
 		glBegin(GL_QUADS);
 		{
 			//Front
-			glColor3f(0f, 0f, 1f);
-			glVertex3f(0f, 0f, 1.0f);
-			glVertex3f(1.0f, 0f, 1.0f);
-			glVertex3f(1.0f, 1.0f, 1.0f);
-			glVertex3f(0f, 1.0f, 1.0f);
-			
-			//Right
-			glColor3f(0f, 1f, 0f);
-			glVertex3f(1.0f, 0f, 0f);
-			glVertex3f(1.0f, 0f, 1.0f);
-			glVertex3f(1.0f, 1.0f, 1.0f);
-			glVertex3f(1.0f, 1.0f, 0f);
-			
-			//Back
-			glColor3f(1f, 0f, 0f);
-			glVertex3f(1.0f, 0f, 0f);
-			glVertex3f(0f, 0f, 0f);
-			glVertex3f(0f, 1.0f, 0f);
-			glVertex3f(1.0f, 1.0f, 0f);
-			
-			//Left
-			glColor3f(0f, 1f, 1f);
-			glVertex3f(0f, 0f, 1.0f);
-			glVertex3f(0f, 0f, 0f);
-			glVertex3f(0f, 1.0f, 0f);
-			glVertex3f(0f, 1.0f, 1.0f);
-			
-			//Top
-			glColor3f(1f, 1f, 0f);
-			glVertex3f(0f, 1.0f, 1.0f);
-			glVertex3f(1.0f, 1.0f, 1.0f);
-			glVertex3f(1.0f, 1.0f, 0f);
-			glVertex3f(0f, 1.0f, 0f);
-			
-			//Bottom
-			glColor3f(1f, 0f, 1f);
-			glVertex3f(1.0f, 0f, 1.0f);
-			glVertex3f(0f, 0f, 1.0f);
-			glVertex3f(0f, 0f, 0f);
-			glVertex3f(1.0f, 0f, 0f);
+			glTexCoord2f(1, 1);
+			glVertex3f(blockWidth, 0f, blockWidth);
+			glTexCoord2f(0, 1);
+			glVertex3f(0f, 0f, blockWidth);
+			glTexCoord2f(0, 0);
+			glVertex3f(0f, blockHeight, blockWidth);
+			glTexCoord2f(1, 0);
+			glVertex3f(blockWidth, blockHeight, blockWidth);
 		}
 		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		t = b.getIcon(5, 0);
+		t.bind();
+		glEnable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+		{
+			//Right
+			glTexCoord2f(1, 1);
+			glVertex3f(blockWidth, 0f, 0f);
+			glTexCoord2f(0, 1);
+			glVertex3f(blockWidth, 0f, blockWidth);
+			glTexCoord2f(0, 0);
+			glVertex3f(blockWidth, blockHeight, blockWidth);
+			glTexCoord2f(1, 0);
+			glVertex3f(blockWidth, blockHeight, 0f);
+		}
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		t = b.getIcon(4, 0);
+		t.bind();
+		glEnable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+		{
+			//Back
+			glTexCoord2f(1, 1);
+			glVertex3f(blockWidth, 0f, 0f);
+			glTexCoord2f(0, 1);
+			glVertex3f(0f, 0f, 0f);
+			glTexCoord2f(0, 0);
+			glVertex3f(0f, blockHeight, 0f);
+			glTexCoord2f(1, 0);
+			glVertex3f(blockWidth, blockHeight, 0f);
+		}
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		t = b.getIcon(2, 0);
+		t.bind();
+		glEnable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+		{
+			//Left
+			glTexCoord2f(1, 1);
+			glVertex3f(0f, 0f, blockWidth);
+			glTexCoord2f(0, 1);
+			glVertex3f(0f, 0f, 0f);
+			glTexCoord2f(0, 0);
+			glVertex3f(0f, blockHeight, 0f);
+			glTexCoord2f(1, 0);
+			glVertex3f(0f, blockHeight, blockWidth);
+		}
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		t = b.getIcon(1, 0);
+		t.bind();
+		glEnable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+		{
+			//Top
+			glTexCoord2f(1, 1);
+			glVertex3f(0f, blockHeight, blockWidth);
+			glTexCoord2f(0, 1);
+			glVertex3f(blockWidth, blockHeight, blockWidth);
+			glTexCoord2f(0, 0);
+			glVertex3f(blockWidth, blockHeight, 0f);
+			glTexCoord2f(1, 0);
+			glVertex3f(0f, blockHeight, 0f);
+		}
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		t = b.getIcon(0, 0);
+		t.bind();
+		glEnable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+		{
+			//Bottom
+			glTexCoord2f(1, 1);
+			glVertex3f(blockWidth, 0f, blockWidth);
+			glTexCoord2f(0, 1);
+			glVertex3f(0f, 0f, blockWidth);
+			glTexCoord2f(0, 0);
+			glVertex3f(0f, 0f, 0f);
+			glTexCoord2f(1, 0);
+			glVertex3f(blockWidth, 0f, 0f);
+		}
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
 	}
 	
 	public void initGL() {
@@ -235,16 +310,15 @@ public class Game {
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	}
 	
-	private void updatePositionSurface(){
+	/*private void updatePosition(){
+		
+		double radiansup = Math.toRadians(degreesup);
+		cameray = (float)(y + radius * Math.sin(radiansup));
+		
 		double radians = Math.toRadians(degreessurface);
 		camerax = (float)(x + radius * Math.cos(radians));
 		cameraz = (float)(z + radius * Math.sin(radians));
-	}
-	
-	private void updatePositionY(){
-		double radians = Math.toRadians(degreesup);
-		cameray = (float)(y + radius * Math.sin(radians));
-	}
+	}*///Updates the position of the camera, UNEEDED;
 	
 	public static void main(String[] args){
 		Game g = new Game();
