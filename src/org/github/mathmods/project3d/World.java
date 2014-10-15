@@ -21,7 +21,7 @@ public class World {
 	}
 	
 	public void prepareChunks(Chunk chunk, int x, int y){
-		chunk = new Chunk(x * 16, y * 16);
+		chunk = new Chunk(x * 16, y * 16, this);
 		spawnChunks[x][y] = chunk;
 	}
 	
@@ -40,6 +40,21 @@ public class World {
 				generating.setBlock(Block.bedrock, x, 0, z);
 			}
 		}	
+	}
+	
+	public Block getBlock(int x, int y, int z){
+		try{
+			return spawnChunks[(int)Math.floor(x/16d)][(int)Math.floor(z/16d)].getBlock(x%16, y, z%16);
+		}catch(ArrayIndexOutOfBoundsException e){
+			return null;
+		}
+	}
+	
+	public Block getBlock(Position p){
+		int x = p.getX();
+		int y = p.getY();
+		int z = p.getZ();
+		return spawnChunks[(int)Math.floor(x/16d)][(int)Math.floor(z/16d)].getBlock(x%16, y, z%16);
 	}
 	
 	//public void tryCreateChunks(Chunk chunk, int x, int y){

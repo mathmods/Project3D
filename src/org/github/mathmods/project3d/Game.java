@@ -153,38 +153,38 @@ public class Game {
 		
 		gluLookAt(camerax, cameray, cameraz, x, y, z, 0, 1, 0);
 		
-		//Doesn't lag but isn't a full world
-		Block b = new BlockGrass();
+		//Doesn't lag but isn't a full world(just 2 blocks)
+		/*Block b = new BlockGrass();
 		glTranslatef(b.x-.5f, b.y-.5f, b.z-.5f);
 		draw1MCube(b);
 		glTranslatef(-b.x+.5f, -b.y+.5f, -b.z+.5f);
 		Block d = new BlockDirt();
 		glTranslatef(d.x-.5f, d.y-.5f, d.z-.5f);
 		draw1MCube(d);
-		glTranslatef(-d.x+.5f, -d.y+.5f, -d.z+.5f);
-		/* LAGGING AS IF IT WAS NO SENSE PLAYING D:*\
-		for(int cx = 0;cx<10;cx++){
-			for(int cy = 0;cy<10;cy++){
-				for(int x = 0;x<16;x++){
-					for(int z = 0;z<16;z++){
-						for(int y = 0;y<52;y++){
-							Block b = world.spawnChunks[cx][cy].getBlock(x, y, z);
-							if(b!=null){
-								glTranslatef(world.spawnChunks[cx][cy].x + x, y,
-										world.spawnChunks[cx][cy].z + z);
-								draw1MCube(b);
-								glTranslatef(-world.spawnChunks[cx][cy].x - x, -y,
-										-world.spawnChunks[cx][cy].z + -z);
-							}
-						}
-					}
-				}
-			}
-		}/*OH NO*/
+		glTranslatef(-d.x+.5f, -d.y+.5f, -d.z+.5f);*/
 		
+		Position[] draw;
+		Block[] blocks = new Block[500000];
+		for(int x = 0; x<10; x++)for(int z = 0; z<10; z++){
+			draw = world.spawnChunks[x][z].getDrawable(world.spawnChunks[x][z]);
+			int f = 0;
+			while(draw[f] != null){
+				blocks[f]=world.getBlock(draw[f]);
+				f++;
+			}
+		}
+		int d = 0;
+		while(blocks[d] != null){
+			d++;
+		}
+		
+		for(int s = 0; s<d; s++){
+			glTranslatef(blocks[s].x, blocks[s].y, blocks[s].z);
+			draw1MCube(blocks[s]);
+			glTranslatef(-blocks[s].x, -blocks[s].y, -blocks[s].z);
+		}
 		Display.sync(60);
 	}
-	
 	public void draw1MCube(Block b){
 		Texture t = b.getIcon(3, 0);
 		t.bind();
